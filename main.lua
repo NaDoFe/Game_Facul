@@ -2,7 +2,7 @@
 creditos = require("menus.creditos")
 controles = require("menus.controles")
 
-love.window.setMode(1920, 1080, { fullscreen = false, resizable = false })
+love.window.setMode(1920, 1080, { fullscreen = true, resizable = false })
 
 -- Configuração inicial
 local nave = {}
@@ -34,8 +34,8 @@ local fontePontuacao = love.graphics.newFont(20)
 -- Função para inicializar o jogo
 function love.load()
     -- Carregar imagens
-    nave.image = love.graphics.newImage("images.nave1.png")
-    meteoroImagem = love.graphics.newImage("images.meteoro.png")
+    nave.image = love.graphics.newImage("nave1.png")
+    meteoroImagem = love.graphics.newImage("meteoro.png")
   
     -- Definir posição e tamanho inicial da nave
     nave.x = love.graphics.getWidth() / 2
@@ -43,7 +43,7 @@ function love.load()
     nave.largura = nave.image:getWidth() * 0.2  -- 20% do tamanho original
     nave.altura = nave.image:getHeight() * 0.5  -- 50% do tamanho original
     nave.velocidade = velocidadeNave
-    imagemMenu = love.graphics.newImage("images.menu.png")
+    imagemMenu = love.graphics.newImage("menu.png")
 
 
     love.window.setTitle("METEOR SMASH")
