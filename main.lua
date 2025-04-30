@@ -19,6 +19,7 @@ local alturaTela = love.graphics.getHeight()
 local velocidadeNave = 300
 local velocidadeTiro = 500
 local velocidadeMeteoro = 100
+
 local tempoUltimoMeteoro = 100
 local score = 0
 local jogoPausado = false
@@ -50,7 +51,7 @@ end
 function reiniciarJogo()
     meteoros = {}
     tiros = {}
-    explosoes = {} -- NOVO: limpa explosões
+    explosoes = {}
     score = 0
     tempoUltimoMeteoro = 1
     vidas = 5
@@ -70,7 +71,6 @@ function love.update(dt)
             nave.x = nave.x + nave.velocidade * dt
         end
 
-        -- Impedir a nave de sair da tela
         if nave.x < 0 then
             nave.x = 0
         elseif nave.x + nave.largura > larguraTela then
@@ -89,33 +89,37 @@ function love.update(dt)
         for i = #meteoros, 1, -1 do
             meteoros[i].y = meteoros[i].y + velocidadeMeteoro * dt
 
-            if meteoros[i].y > alturaTela then
-                -- Criar explosão ao bater no chão
-                table.insert(explosoes, {
-                    x = meteoros[i].x,
-                    y = alturaTela - 30,
-                    tempo = 0.5
-                })
-
-                table.remove(meteoros, i)
-                vidas = vidas - 1
-                if vidas <= 0 then
-                    gameOver = true
-                end
-            end
-
             -- Verificar colisão com tiros
             for j = #tiros, 1, -1 do
                 if checarColisao(meteoros[i], tiros[j]) then
+                    table.insert(explosoes, {
+                        x = meteoros[i].x,
+                        y = meteoros[i].y,
+                        tempo = 0.5
+                    })
                     table.remove(meteoros, i)
                     table.remove(tiros, j)
                     score = score + 1
                     break
                 end
             end
+
+            -- Verificar se bateu no chão
+            if meteoros[i] and meteoros[i].y > alturaTela then
+                table.insert(explosoes, {
+                    x = meteoros[i].x,
+                    y = alturaTela - 30,
+                    tempo = 0.5
+                })
+                table.remove(meteoros, i)
+                vidas = vidas - 1
+                if vidas <= 0 then
+                    gameOver = true
+                end
+            end
         end
 
-        -- Criar meteoros
+        -- Criar novos meteoros
         tempoUltimoMeteoro = tempoUltimoMeteoro + dt
         if tempoUltimoMeteoro > 1 then
             criarMeteoro()
@@ -149,7 +153,7 @@ function desenharMenu()
     love.graphics.draw(imagemMenu, 0, 0, 0, 0.9, 0.75)
     love.graphics.printf("METEOR SMASH", 0, 100, larguraTela / 1.5, "center")
 
-    local opcoes = {"Jogar", "Controles", "Créditos"}
+    local opcoes = {"Jogar", "Controles", "Créditos", "Sair"}
     for i = 1, #opcoes do
         if i == opcaoSelecionada then
             love.graphics.setColor(100, 100, 0)
@@ -162,41 +166,32 @@ function desenharMenu()
 end
 
 function desenharJogo()
-    -- Desenhar nave
     love.graphics.draw(nave.image, nave.x, nave.y, 0, 0.2, 0.2)
 
-    -- Desenhar meteoros
     for _, meteoro in ipairs(meteoros) do
         love.graphics.draw(meteoroImagem, meteoro.x, meteoro.y, 0, 0.3, 0.3)
     end
 
-    -- Desenhar explosões
     for _, explosao in ipairs(explosoes) do
         love.graphics.setColor(255, 165, 0)
         love.graphics.circle("fill", explosao.x + 15, explosao.y, 20)
     end
     love.graphics.setColor(255, 255, 255)
 
-    -- Desenhar tiros
     love.graphics.setColor(0, 255, 0)
     for _, tiro in ipairs(tiros) do
         love.graphics.rectangle("fill", tiro.x, tiro.y, 5, 10)
     end
     love.graphics.setColor(255, 255, 255)
 
-    -- Exibir pontuação
     love.graphics.setFont(fontePontuacao)
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
-
-    -- Exibir vidas restantes
     love.graphics.print("Vidas: " .. vidas, 100, 50)
 
-    -- Mensagem de pause
     if jogoPausado then
         love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\nPressione 'M' para voltar ao menu", 0, alturaTela / 2, larguraTela, "center")
     end
 
-    -- Mensagem de Game Over
     if gameOver then
         love.graphics.setColor(255, 0, 0)
         love.graphics.printf("TERRA DESTRUÍDA", 0, alturaTela / 2, larguraTela, "center")
@@ -215,10 +210,11 @@ function criarMeteoro()
 end
 
 function checarColisao(meteoro, tiro)
+    local escala = 0.3
     local meteoroLeft = meteoro.x
-    local meteoroRight = meteoro.x + meteoroImagem:getWidth() * 0.2
+    local meteoroRight = meteoro.x + meteoroImagem:getWidth() * escala
     local meteoroTop = meteoro.y
-    local meteoroBottom = meteoro.y + meteoroImagem:getHeight() * 0.2
+    local meteoroBottom = meteoro.y + meteoroImagem:getHeight() * escala
 
     local tiroLeft = tiro.x
     local tiroRight = tiro.x + 5
@@ -231,9 +227,9 @@ end
 function love.keypressed(key)
     if estado == "menu" then
         if key == "down" then
-            opcaoSelecionada = opcaoSelecionada % 3 + 1
+            opcaoSelecionada = opcaoSelecionada % 4 + 1
         elseif key == "up" then
-            opcaoSelecionada = (opcaoSelecionada - 2) % 3 + 1
+            opcaoSelecionada = (opcaoSelecionada - 2) % 4 + 1
         elseif key == "return" then
             if opcaoSelecionada == 1 then
                 estado = "jogo"
@@ -241,6 +237,8 @@ function love.keypressed(key)
                 estado = "controles"
             elseif opcaoSelecionada == 3 then
                 estado = "creditos"
+            elseif opcaoSelecionada == 4 then
+                love.event.quit()
             end
         elseif key == "backspace" then
             estado = "menu"
@@ -266,5 +264,3 @@ function love.keypressed(key)
         end
     end
 end
-
-
