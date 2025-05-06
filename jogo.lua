@@ -104,12 +104,12 @@ function jogo.update(dt)
     end
 
     -- Fases
-    if fase == 1 and destruicoesFase >= 20 then
+    if fase == 1 and destruicoesFase >= 40 then
         fase = 2
         alvoFase = 10
         destruicoesFase = 0
         velocidadeMeteoro = 150
-    elseif fase == 2 and destruicoesFase >= 10 then
+    elseif fase == 2 and destruicoesFase >= 20 then
         fase = 3
         meteoroFinal = {
             x = larguraTela / 2 - 100,
