@@ -3,17 +3,21 @@ creditos = require("menus.creditos")
 controles = require("menus.controles")
 jogo = require("jogo")
 
-love.window.setMode(0, 0, { fullscreen = true, fullscreentype = "desktop" })
+love.window.setFullscreen(true, "desktop")
 
 -- Estado do jogo
 estado = "menu"
 opcaoSelecionada = 1
+
+local fonte = love.graphics.newFont("fonts/Micro5-Regular.ttf",20)
+
 
 -- Imagem do menu
 local imagemMenu
 local larguraTela = love.graphics.getWidth()
 
 function love.load()
+    love.graphics.setFont(fonte)
     imagemMenu = love.graphics.newImage("menu.png")
     love.window.setTitle("METEOR SMASH")
     jogo.load() -- carregar os recursos do jogo
@@ -38,6 +42,7 @@ function love.draw()
 end
 
 function desenharMenu()
+    love.graphics.setFont(fonte)
     love.graphics.setColor(255, 255, 255)
     love.graphics.draw(imagemMenu, 0, 0, 0, 0.9, 0.75)
     love.graphics.printf("METEOR SMASH", 0, 100, larguraTela / 1.5, "center")

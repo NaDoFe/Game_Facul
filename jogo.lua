@@ -11,7 +11,7 @@ local velocidadeNave = 300
 local velocidadeTiro = 500
 local velocidadeMeteoro = 100
 local tempoUltimoMeteoro = 0
-local fontePontuacao = love.graphics.newFont(20)
+local fontePontuacao = love.graphics.newFont("fonts/Micro5-Regular.ttf", 20)
 
 local score = 0
 local vidas = 5
@@ -51,7 +51,9 @@ function jogo.reiniciar()
 end
 
 function jogo.update(dt)
-    if gameOver or jogoPausado then return end
+    if gameOver or jogoPausado then
+        return
+    end
 
     -- Movimentação da nave
     if love.keyboard.isDown("left") or love.keyboard.isDown("a") then
@@ -73,21 +75,6 @@ function jogo.update(dt)
         if tiros[i].y < 0 then
             table.remove(tiros, i)
         end
-    end
-
-    -- Fase final
-    if fase == 3 and meteoroFinal then
-        meteoroFinal.y = meteoroFinal.y + 40 * dt
-        for i = #tiros, 1, -1 do
-            if checarColisao(meteoroFinal, tiros[i], 0.6) then
-                meteoroFinal.vida = meteoroFinal.vida - 1
-                table.remove(tiros, i)
-                if meteoroFinal.vida <= 0 then
-                    gameOver = true -- vitória
-                end
-            end
-        end
-        return
     end
 
     -- Meteoros
@@ -127,10 +114,25 @@ function jogo.update(dt)
         meteoroFinal = {
             x = larguraTela / 2 - 100,
             y = -100,
-            vida = 20,
+            vida = 50,
             largura = meteoroGigante:getWidth() * 0.6,
             altura = meteoroGigante:getHeight() * 0.6
         }
+    end
+
+    -- Fase final
+    if fase == 3 and meteoroFinal then
+        meteoroFinal.y = meteoroFinal.y + 40 * dt
+        for i = #tiros, 1, -1 do
+            if checarColisao(meteoroFinal, tiros[i], 0.6) then
+                meteoroFinal.vida = meteoroFinal.vida - 1
+                table.remove(tiros, i)
+                if meteoroFinal.vida <= 0 then
+                    gameOver = true -- vitória
+                end
+            end
+        end
+        return
     end
 
     -- Criar novos meteoros
@@ -173,13 +175,15 @@ function jogo.draw()
 
     -- Pausa
     if jogoPausado then
-        love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\n'M' para menu", 0, alturaTela / 2, larguraTela, "center")
+        love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\n'M' para menu", 0, alturaTela / 2,
+            larguraTela, "center")
     end
 
     -- Game Over
     if gameOver then
         love.graphics.setColor(255, 0, 0)
-        local msg = (fase == 3 and meteoroFinal and meteoroFinal.vida <= 0) and "VITÓRIA! TERRA SALVA!" or "TERRA DESTRUÍDA"
+        local msg = (fase == 3 and meteoroFinal and meteoroFinal.vida <= 0) and "VITÓRIA! TERRA SALVA!" or
+                        "TERRA DESTRUÍDA"
         love.graphics.printf(msg, 0, alturaTela / 2, larguraTela, "center")
         love.graphics.printf("Pressione 'R' para reiniciar", 0, alturaTela / 2 + 40, larguraTela, "center")
         love.graphics.setColor(255, 255, 255)
@@ -188,7 +192,10 @@ end
 
 function jogo.keypressed(key)
     if key == "space" and not jogoPausado and not gameOver then
-        local tiro = {x = nave.x + nave.largura / 2 - 2.5, y = nave.y}
+        local tiro = {
+            x = nave.x + nave.largura / 2 - 2.5,
+            y = nave.y
+        }
         table.insert(tiros, tiro)
     elseif key == "p" then
         jogoPausado = not jogoPausado
@@ -206,7 +213,7 @@ function criarMeteoro()
     local meteoro = {
         x = math.random(0, larguraTela - meteoroImagem:getWidth() * 0.3),
         y = -30,
-        velocidade = math.random(velocidadeMeteoro, velocidadeMeteoro + 50),
+        velocidade = math.random(velocidadeMeteoro, velocidadeMeteoro + 50)
     }
     table.insert(meteoros, meteoro)
 end
@@ -218,8 +225,7 @@ function checarColisao(obj1, obj2, escala)
     local obj2Right = obj2.x + 5
     local obj2Bottom = obj2.y + 10
 
-    return obj2.x < obj1Right and obj2Right > obj1.x and
-           obj2.y < obj1Bottom and obj2Bottom > obj1.y
+    return obj2.x < obj1Right and obj2Right > obj1.x and obj2.y < obj1Bottom and obj2Bottom > obj1.y
 end
 
 return jogo
