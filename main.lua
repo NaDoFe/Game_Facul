@@ -9,7 +9,7 @@ love.window.setFullscreen(true, "desktop")
 estado = "menu"
 opcaoSelecionada = 1
 
-local fonte = love.graphics.newFont("fonts/Micro5-Regular.ttf",20)
+local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf",20)
 
 
 -- Imagem do menu
