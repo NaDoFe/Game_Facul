@@ -22,6 +22,11 @@ local destruicoesFase = 0
 local alvoFase = 20
 local meteoroFinal = nil
 
+-- Variáveis para transição de fase
+local emTransicaoDeFase = false
+local tempoTransicao = 0
+local duracaoTransicao = 3
+
 function jogo.load()
     nave.image = love.graphics.newImage("nave1.png")
     meteoroImagem = love.graphics.newImage("meteoro.png")
@@ -46,12 +51,33 @@ function jogo.reiniciar()
     destruicoesFase = 0
     alvoFase = 20
     tempoUltimoMeteoro = 0
+    emTransicaoDeFase = false
+    tempoTransicao = 0
 
     nave.x = larguraTela / 2
 end
 
 function jogo.update(dt)
     if gameOver or jogoPausado then return end
+
+    if emTransicaoDeFase then
+        tempoTransicao = tempoTransicao + dt
+        if tempoTransicao >= duracaoTransicao then
+            emTransicaoDeFase = false
+            tempoTransicao = 0
+
+            if fase == 3 then
+                meteoroFinal = {
+                    x = larguraTela / 2 - 100,
+                    y = -100,
+                    vida = 50,
+                    largura = meteoroGigante:getWidth() * 0.6,
+                    altura = meteoroGigante:getHeight() * 0.6
+                }
+            end
+        end
+        return
+    end
 
     -- Movimentação da nave
     if love.keyboard.isDown("left") or love.keyboard.isDown("a") then
@@ -74,8 +100,6 @@ function jogo.update(dt)
             table.remove(tiros, i)
         end
     end
-
-
 
     -- Meteoros
     for i = #meteoros, 1, -1 do
@@ -103,38 +127,27 @@ function jogo.update(dt)
         end
     end
 
-    -- Fases
+    -- Verificar transição de fase
     if fase == 1 and destruicoesFase >= 20 then
-        fase = 2
-        alvoFase = 10
-        destruicoesFase = 0
-        velocidadeMeteoro = 150
+        iniciarTransicao(2, 10, 150)
     elseif fase == 2 and destruicoesFase >= 10 then
-        fase = 3
-        meteoroFinal = {
-            x = larguraTela / 2 - 100,
-            y = -100,
-            vida = 50,
-            largura = meteoroGigante:getWidth() * 0.6,
-            altura = meteoroGigante:getHeight() * 0.6
-        }
+        iniciarTransicao(3)
     end
 
-
-        -- Fase final
-        if fase == 3 and meteoroFinal then
-            meteoroFinal.y = meteoroFinal.y + 40 * dt
-            for i = #tiros, 1, -1 do
-                if checarColisao(meteoroFinal, tiros[i], 0.6) then
-                    meteoroFinal.vida = meteoroFinal.vida - 1
-                    table.remove(tiros, i)
-                    if meteoroFinal.vida <= 0 then
-                        gameOver = true -- vitória
-                    end
+    -- Fase final
+    if fase == 3 and meteoroFinal then
+        meteoroFinal.y = meteoroFinal.y + 40 * dt
+        for i = #tiros, 1, -1 do
+            if checarColisao(meteoroFinal, tiros[i], 0.6) then
+                meteoroFinal.vida = meteoroFinal.vida - 1
+                table.remove(tiros, i)
+                if meteoroFinal.vida <= 0 then
+                    gameOver = true -- vitória
                 end
             end
-            return
         end
+        return
+    end
 
     -- Criar novos meteoros
     tempoUltimoMeteoro = tempoUltimoMeteoro + dt
@@ -145,15 +158,12 @@ function jogo.update(dt)
 end
 
 function jogo.draw()
-    -- Nave
     love.graphics.draw(nave.image, nave.x, nave.y, 0, 0.2, 0.2)
 
-    -- Meteoros
     for _, meteoro in ipairs(meteoros) do
         love.graphics.draw(meteoroImagem, meteoro.x, meteoro.y, 0, 0.3, 0.3)
     end
 
-    -- Meteoro Final
     if meteoroFinal then
         love.graphics.draw(meteoroGigante, meteoroFinal.x, meteoroFinal.y, 0, 0.6, 0.6)
         love.graphics.setColor(255, 0, 0)
@@ -161,25 +171,26 @@ function jogo.draw()
         love.graphics.setColor(255, 255, 255)
     end
 
-    -- Tiros
     love.graphics.setColor(0, 255, 0)
     for _, tiro in ipairs(tiros) do
         love.graphics.rectangle("fill", tiro.x, tiro.y, 5, 10)
     end
     love.graphics.setColor(255, 255, 255)
 
-    -- Pontuação e vidas
     love.graphics.setFont(fontePontuacao)
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
     love.graphics.print("Vidas: " .. vidas, 100, 50)
     love.graphics.print("Fase: " .. fase, 10, 40)
 
-    -- Pausa
     if jogoPausado then
         love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\n'M' para menu", 0, alturaTela / 2, larguraTela, "center")
     end
 
-    -- Game Over
+    if emTransicaoDeFase then
+        love.graphics.setFont(fontePontuacao)
+        love.graphics.printf("Fase " .. fase .. " começando em " .. math.ceil(duracaoTransicao - tempoTransicao), 0, alturaTela / 2, larguraTela, "center")
+    end
+
     if gameOver then
         love.graphics.setColor(255, 0, 0)
         local msg = (fase == 3 and meteoroFinal and meteoroFinal.vida <= 0) and "VITÓRIA! TERRA SALVA!" or "TERRA DESTRUÍDA"
@@ -190,7 +201,7 @@ function jogo.draw()
 end
 
 function jogo.keypressed(key)
-    if key == "space" and not jogoPausado and not gameOver then
+    if key == "space" and not jogoPausado and not gameOver and not emTransicaoDeFase then
         local tiro = {x = nave.x + nave.largura / 2 - 2.5, y = nave.y}
         table.insert(tiros, tiro)
     elseif key == "p" then
@@ -223,6 +234,16 @@ function checarColisao(obj1, obj2, escala)
 
     return obj2.x < obj1Right and obj2Right > obj1.x and
            obj2.y < obj1Bottom and obj2Bottom > obj1.y
+end
+
+function iniciarTransicao(novaFase, novoAlvo, novaVelocidade)
+    emTransicaoDeFase = true
+    fase = novaFase
+    alvoFase = novoAlvo or alvoFase
+    velocidadeMeteoro = novaVelocidade or velocidadeMeteoro
+    destruicoesFase = 0
+    meteoros = {}
+    tiros = {}
 end
 
 return jogo
