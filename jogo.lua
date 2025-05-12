@@ -17,7 +17,7 @@ local velocidadeTiro = 500
 local velocidadeMeteoro = 100
 local tempoUltimoMeteoro = 0
 
-local fontePontuacao = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 20)
+local fontePontuacao = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 10)
 
 -- Estado do jogo
 local score = 0

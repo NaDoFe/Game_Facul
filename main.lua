@@ -11,7 +11,7 @@ love.window.setMode(larguraTela, alturaTela, {fullscreen = true})
 estado = "menu"
 opcaoSelecionada = 1
 
-local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 20)
+local fonte = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 10)
 
 -- Imagem do menu
 local imagemMenu
