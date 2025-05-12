@@ -7,7 +7,7 @@ local meteoroImagem
 local meteoroGigante
 
 -- Dimensões da tela
-local larguraTela = 1280
+local larguraTela = 1350
 local alturaTela = 720
 love.window.setMode(larguraTela, alturaTela)
 

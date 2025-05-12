@@ -3,18 +3,18 @@ creditos = require("menus.creditos")
 controles = require("menus.controles")
 jogo = require("jogo")
 
-love.window.resize()
+-- Dimensões da tela
+larguraTela, alturaTela = love.window.getDesktopDimensions()
+love.window.setMode(larguraTela, alturaTela, {fullscreen = true})
 
 -- Estado do jogo
 estado = "menu"
 opcaoSelecionada = 1
 
-local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf",20)
-
+local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 20)
 
 -- Imagem do menu
 local imagemMenu
-local larguraTela = love.window.setMode(larguraTela,alturaTela)
 
 function love.load()
     love.graphics.setFont(fonte)
@@ -44,8 +44,20 @@ end
 function desenharMenu()
     love.graphics.setFont(fonte)
     love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(imagemMenu, 0, 0, 0, 0.9, 0.75)
-    love.graphics.printf("METEOR SMASH", 0, 100, larguraTela / 1.5, "center")
+
+    -- Escala proporcional para preencher a tela sem distorcer
+    local imgLarg = imagemMenu:getWidth()
+    local imgAlt = imagemMenu:getHeight()
+    local escala = math.min(larguraTela / imgLarg, alturaTela / imgAlt)
+
+    -- Centralizar a imagem
+    local offsetX = (larguraTela - imgLarg * escala) / 2
+    local offsetY = (alturaTela - imgAlt * escala) / 2
+    love.graphics.draw(imagemMenu, offsetX, offsetY, 0, escala, escala)
+
+    -- Título e opções
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.printf("METEOR SMASH", 0, 100, larguraTela, "center")
 
     local opcoes = {"Jogar", "Controles", "Créditos", "Sair"}
     for i = 1, #opcoes do
@@ -55,7 +67,7 @@ function desenharMenu()
         else
             love.graphics.setColor(255, 255, 255)
         end
-        love.graphics.printf(opcoes[i], 0, 200 + (i * 40), larguraTela / 1.5, "center")
+        love.graphics.printf(opcoes[i], 0, 200 + (i * 40), larguraTela, "center")
     end
 end
 
