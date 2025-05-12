@@ -5,14 +5,21 @@ local meteoros = {}
 local tiros = {}
 local meteoroImagem
 local meteoroGigante
-local larguraTela = love.graphics.getWidth()
-local alturaTela = love.graphics.getHeight()
+
+-- Dimensões da tela
+local larguraTela = 1350
+local alturaTela = 720
+love.window.setMode(larguraTela, alturaTela)
+
+-- Configurações
 local velocidadeNave = 300
 local velocidadeTiro = 500
 local velocidadeMeteoro = 100
 local tempoUltimoMeteoro = 0
-local fontePontuacao = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf",20)
 
+local fontePontuacao = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 20)
+
+-- Estado do jogo
 local score = 0
 local vidas = 5
 local jogoPausado = false
@@ -22,7 +29,7 @@ local destruicoesFase = 0
 local alvoFase = 20
 local meteoroFinal = nil
 
--- Variáveis para transição de fase
+-- Transição de fase
 local emTransicaoDeFase = false
 local tempoTransicao = 0
 local duracaoTransicao = 3
@@ -30,10 +37,10 @@ local duracaoTransicao = 3
 function jogo.load()
     nave.image = love.graphics.newImage("nave1.png")
     meteoroImagem = love.graphics.newImage("meteoro.png")
-    meteoroGigante = love.graphics.newImage("meteoro.png") -- usa a mesma imagem, mas escala maior
+    meteoroGigante = love.graphics.newImage("meteoro.png") -- usa a mesma imagem, mas escalada
 
     nave.x = larguraTela / 2
-    nave.y = alturaTela / 1.2
+    nave.y = alturaTela * 0.85
     nave.largura = nave.image:getWidth() * 0.2
     nave.altura = nave.image:getHeight() * 0.5
     nave.velocidade = velocidadeNave
@@ -53,7 +60,6 @@ function jogo.reiniciar()
     tempoUltimoMeteoro = 0
     emTransicaoDeFase = false
     tempoTransicao = 0
-
     nave.x = larguraTela / 2
 end
 
@@ -65,7 +71,6 @@ function jogo.update(dt)
         if tempoTransicao >= duracaoTransicao then
             emTransicaoDeFase = false
             tempoTransicao = 0
-
             if fase == 3 then
                 meteoroFinal = {
                     x = larguraTela / 2 - 100,
@@ -127,7 +132,7 @@ function jogo.update(dt)
         end
     end
 
-    -- Verificar transição de fase
+    -- Lógica de fases
     if fase == 1 and destruicoesFase >= 20 then
         iniciarTransicao(2, 10, 150)
     elseif fase == 2 and destruicoesFase >= 10 then
@@ -142,14 +147,14 @@ function jogo.update(dt)
                 meteoroFinal.vida = meteoroFinal.vida - 1
                 table.remove(tiros, i)
                 if meteoroFinal.vida <= 0 then
-                    gameOver = true -- vitória
+                    gameOver = true
                 end
             end
         end
         return
     end
 
-    -- Criar novos meteoros
+    -- Criar meteoros
     tempoUltimoMeteoro = tempoUltimoMeteoro + dt
     if tempoUltimoMeteoro > 1 and fase < 3 then
         criarMeteoro()
@@ -179,15 +184,14 @@ function jogo.draw()
 
     love.graphics.setFont(fontePontuacao)
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
-    love.graphics.print("Vidas: " .. vidas, 100, 50)
     love.graphics.print("Fase: " .. fase, 10, 40)
+    love.graphics.print("Vidas: " .. vidas, 100, 50)
 
     if jogoPausado then
         love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\n'M' para menu", 0, alturaTela / 2, larguraTela, "center")
     end
 
     if emTransicaoDeFase then
-        love.graphics.setFont(fontePontuacao)
         love.graphics.printf("Fase " .. fase .. " começando em " .. math.ceil(duracaoTransicao - tempoTransicao), 0, alturaTela / 2, larguraTela, "center")
     end
 
