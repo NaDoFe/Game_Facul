@@ -3,7 +3,7 @@ creditos = require("menus.creditos")
 controles = require("menus.controles")
 jogo = require("jogo")
 
-love.window.setFullscreen(true, "desktop")
+love.window.resize()
 
 -- Estado do jogo
 estado = "menu"
@@ -14,7 +14,7 @@ local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf",2
 
 -- Imagem do menu
 local imagemMenu
-local larguraTela = love.graphics.getWidth()
+local larguraTela = love.window.setMode(larguraTela,alturaTela)
 
 function love.load()
     love.graphics.setFont(fonte)
