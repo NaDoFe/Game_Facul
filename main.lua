@@ -60,6 +60,7 @@ function desenharMenu()
     love.graphics.setColor(255, 255, 255)
     love.graphics.printf("METEOR SMASH", 0, 100, larguraTela, "center")
 
+    -- Opções do menu
     local opcoes = {
         "Jogar (Nave " .. naveSelecionada .. ")",
         "Controles",
@@ -86,6 +87,7 @@ function love.keypressed(key)
             opcaoSelecionada = (opcaoSelecionada - 2) % 4 + 1
         elseif key == "left" or key == "right" then
             if opcaoSelecionada == 1 then
+                -- Trocar de nave
                 if key == "left" then
                     naveSelecionada = (naveSelecionada - 2) % 3 + 1
                 elseif key == "right" then
@@ -94,7 +96,8 @@ function love.keypressed(key)
             end
         elseif key == "return" then
             if opcaoSelecionada == 1 then
-                jogo.naveSelecionada = naveSelecionada -- passa para o módulo do jogo
+                -- Passar a nave selecionada para o módulo do jogo
+                jogo.naveSelecionada = naveSelecionada
                 estado = "jogo"
                 jogo.reiniciar()
             elseif opcaoSelecionada == 2 then

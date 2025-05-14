@@ -214,7 +214,21 @@ end
 
 function jogo.keypressed(key)
     if key == "space" and not jogoPausado and not gameOver and not emTransicaoDeFase then
-        local tiro = {x = nave.x + nave.largura / 2 - 2.5, y = nave.y}
+        -- Ajustando a posição dos tiros para sair da ponta da nave
+        local tiro = {}
+        
+        -- Verifica a nave selecionada para ajustar a posição do tiro
+        if naveSelecionada == 1 then
+            tiro.x = nave.x + nave.largura / 2 - 2.5  -- Centraliza o tiro no meio da nave
+        elseif naveSelecionada == 2 then
+            tiro.x = nave.x + nave.largura * 2.5 - 2.5  -- Ajuste para sair da ponta da nave 2
+        elseif naveSelecionada == 3 then
+            tiro.x = nave.x + nave.largura * 2.5 - 2.5
+        else
+            tiro.x = nave.x + nave.largura / 2 - 2.5  -- Para a nave 3 ou outras, sairá centralizado
+        end
+        
+        tiro.y = nave.y - 10  -- Ajuste vertical para sair do topo da nave
         table.insert(tiros, tiro)
     elseif key == "p" then
         jogoPausado = not jogoPausado
