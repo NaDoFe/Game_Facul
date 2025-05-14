@@ -10,6 +10,7 @@ love.window.setMode(larguraTela, alturaTela, {fullscreen = true})
 -- Estado do jogo
 estado = "menu"
 opcaoSelecionada = 1
+naveSelecionada = 1 -- Adiciona a nave selecionada
 
 local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 20)
 
@@ -55,15 +56,21 @@ function desenharMenu()
     local offsetY = (alturaTela - imgAlt * escala) / 2
     love.graphics.draw(imagemMenu, offsetX, offsetY, 0, escala, escala)
 
-    -- Título e opções
+    -- Título
     love.graphics.setColor(255, 255, 255)
     love.graphics.printf("METEOR SMASH", 0, 100, larguraTela, "center")
 
-    local opcoes = {"Jogar", "Controles", "Créditos", "Sair"}
+    local opcoes = {
+        "Jogar (Nave " .. naveSelecionada .. ")",
+        "Controles",
+        "Créditos",
+        "Sair"
+    }
+
     for i = 1, #opcoes do
         if i == opcaoSelecionada then
             love.graphics.setColor(100, 100, 0)
-            love.graphics.rectangle("line", 540, 192 + (i * 40), 200, 30)
+            love.graphics.rectangle("line", 540, 192 + (i * 40), 300, 30)
         else
             love.graphics.setColor(255, 255, 255)
         end
@@ -77,8 +84,17 @@ function love.keypressed(key)
             opcaoSelecionada = opcaoSelecionada % 4 + 1
         elseif key == "up" then
             opcaoSelecionada = (opcaoSelecionada - 2) % 4 + 1
+        elseif key == "left" or key == "right" then
+            if opcaoSelecionada == 1 then
+                if key == "left" then
+                    naveSelecionada = (naveSelecionada - 2) % 3 + 1
+                elseif key == "right" then
+                    naveSelecionada = naveSelecionada % 3 + 1
+                end
+            end
         elseif key == "return" then
             if opcaoSelecionada == 1 then
+                jogo.naveSelecionada = naveSelecionada -- passa para o módulo do jogo
                 estado = "jogo"
                 jogo.reiniciar()
             elseif opcaoSelecionada == 2 then

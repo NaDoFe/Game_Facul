@@ -34,10 +34,18 @@ local emTransicaoDeFase = false
 local tempoTransicao = 0
 local duracaoTransicao = 3
 
+-- Seleção de naves
+local navesDisponiveis = {
+    love.graphics.newImage("nave1.png"),
+    love.graphics.newImage("nave2.png"),
+    love.graphics.newImage("nave3.png")
+}
+local naveSelecionada = 1
+
 function jogo.load()
-    nave.image = love.graphics.newImage("nave1.png")
+    nave.image = navesDisponiveis[naveSelecionada]
     meteoroImagem = love.graphics.newImage("meteoro.png")
-    meteoroGigante = love.graphics.newImage("meteoro.png") -- usa a mesma imagem, mas escalada
+    meteoroGigante = love.graphics.newImage("meteoro.png")
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
@@ -61,6 +69,11 @@ function jogo.reiniciar()
     emTransicaoDeFase = false
     tempoTransicao = 0
     nave.x = larguraTela / 2
+
+    -- Atualiza nave conforme a selecionada
+    nave.image = navesDisponiveis[naveSelecionada]
+    nave.largura = nave.image:getWidth() * 0.2
+    nave.altura = nave.image:getHeight() * 0.5
 end
 
 function jogo.update(dt)
@@ -91,7 +104,6 @@ function jogo.update(dt)
         nave.x = nave.x + nave.velocidade * dt
     end
 
-    -- Limites da nave
     if nave.x < 0 then
         nave.x = 0
     elseif nave.x + nave.largura > larguraTela then
@@ -111,7 +123,6 @@ function jogo.update(dt)
         local m = meteoros[i]
         m.y = m.y + m.velocidade * dt
 
-        -- Colisão com tiro
         for j = #tiros, 1, -1 do
             if checarColisao(m, tiros[j], 0.3) then
                 table.remove(meteoros, i)
@@ -122,7 +133,6 @@ function jogo.update(dt)
             end
         end
 
-        -- Passou da tela
         if m and m.y > alturaTela then
             table.remove(meteoros, i)
             vidas = vidas - 1
@@ -132,14 +142,12 @@ function jogo.update(dt)
         end
     end
 
-    -- Lógica de fases
     if fase == 1 and destruicoesFase >= 20 then
         iniciarTransicao(2, 10, 150)
     elseif fase == 2 and destruicoesFase >= 10 then
         iniciarTransicao(3)
     end
 
-    -- Fase final
     if fase == 3 and meteoroFinal then
         meteoroFinal.y = meteoroFinal.y + 40 * dt
         for i = #tiros, 1, -1 do
@@ -154,7 +162,6 @@ function jogo.update(dt)
         return
     end
 
-    -- Criar meteoros
     tempoUltimoMeteoro = tempoUltimoMeteoro + dt
     if tempoUltimoMeteoro > 1 and fase < 3 then
         criarMeteoro()
@@ -186,6 +193,7 @@ function jogo.draw()
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
     love.graphics.print("Fase: " .. fase, 10, 40)
     love.graphics.print("Vidas: " .. vidas, 100, 50)
+    love.graphics.print("Nave: " .. naveSelecionada, 10, 70)
 
     if jogoPausado then
         love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\n'M' para menu", 0, alturaTela / 2, larguraTela, "center")
@@ -217,6 +225,15 @@ function jogo.keypressed(key)
         jogo.reiniciar()
     elseif key == "backspace" then
         estado = "menu"
+    elseif key == "1" then
+        naveSelecionada = 1
+        nave.image = navesDisponiveis[naveSelecionada]
+    elseif key == "2" then
+        naveSelecionada = 2
+        nave.image = navesDisponiveis[naveSelecionada]
+    elseif key == "3" then
+        naveSelecionada = 3
+        nave.image = navesDisponiveis[naveSelecionada]
     end
 end
 
