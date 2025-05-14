@@ -5,6 +5,7 @@ local meteoros = {}
 local tiros = {}
 local meteoroImagem
 local meteoroGigante
+local imagemBala
 
 -- Dimensões da tela
 local larguraTela = 1350
@@ -46,6 +47,7 @@ function jogo.load()
     nave.image = navesDisponiveis[naveSelecionada]
     meteoroImagem = love.graphics.newImage("meteoro.png")
     meteoroGigante = love.graphics.newImage("meteoro.png")
+    imagemBala = love.graphics.newImage("bala.png")
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
@@ -70,7 +72,6 @@ function jogo.reiniciar()
     tempoTransicao = 0
     nave.x = larguraTela / 2
 
-    -- Atualiza nave conforme a selecionada
     nave.image = navesDisponiveis[naveSelecionada]
     nave.largura = nave.image:getWidth() * 0.2
     nave.altura = nave.image:getHeight() * 0.5
@@ -183,11 +184,9 @@ function jogo.draw()
         love.graphics.setColor(255, 255, 255)
     end
 
-    love.graphics.setColor(0, 255, 0)
     for _, tiro in ipairs(tiros) do
-        love.graphics.rectangle("fill", tiro.x, tiro.y, 5, 10)
+        love.graphics.draw(tiro.imagem, tiro.x, tiro.y, 0, 0.3, 0.3)
     end
-    love.graphics.setColor(255, 255, 255)
 
     love.graphics.setFont(fontePontuacao)
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
@@ -214,19 +213,25 @@ end
 
 function jogo.keypressed(key)
     if key == "space" and not jogoPausado and not gameOver and not emTransicaoDeFase then
-        -- Ajustando a posição dos tiros para sair da ponta da nave
-        local tiro = {}
-        
-        -- Verifica a nave selecionada para ajustar a posição do tiro
+        local escalaBala = 0.3
+        local larguraBala = imagemBala:getWidth() * escalaBala
+        local alturaBala = imagemBala:getHeight() * escalaBala
+
+        local tiro = {
+            imagem = imagemBala,
+            largura = larguraBala,
+            altura = alturaBala,
+            y = nave.y - alturaBala
+        }
+
         if naveSelecionada == 1 then
-            tiro.x = nave.x + nave.largura / 2 - 2.5  -- Centraliza o tiro no meio da nave
+            tiro.x = nave.x + nave.largura / 2 - larguraBala / 2
         elseif naveSelecionada == 2 then
-            tiro.x = nave.x + nave.largura * 2.5 - 2.5  -- Tiro centro 2
+            tiro.x = nave.x + nave.largura / 2 - larguraBala / 2
         elseif naveSelecionada == 3 then
-            tiro.x = nave.x + nave.largura * 2.5 - 2.5 -- Tiro centro 3
+            tiro.x = nave.x + (nave.largura / 2) - larguraBala / 2
         end
-        
-        tiro.y = nave.y - 10  -- Ajuste vertical para sair do topo da nave
+
         table.insert(tiros, tiro)
     elseif key == "p" then
         jogoPausado = not jogoPausado
@@ -262,8 +267,8 @@ function checarColisao(obj1, obj2, escala)
     escala = escala or 0.3
     local obj1Right = obj1.x + meteoroImagem:getWidth() * escala
     local obj1Bottom = obj1.y + meteoroImagem:getHeight() * escala
-    local obj2Right = obj2.x + 5
-    local obj2Bottom = obj2.y + 10
+    local obj2Right = obj2.x + obj2.largura
+    local obj2Bottom = obj2.y + obj2.altura
 
     return obj2.x < obj1Right and obj2Right > obj1.x and
            obj2.y < obj1Bottom and obj2Bottom > obj1.y
