@@ -221,11 +221,9 @@ function jogo.keypressed(key)
         if naveSelecionada == 1 then
             tiro.x = nave.x + nave.largura / 2 - 2.5  -- Centraliza o tiro no meio da nave
         elseif naveSelecionada == 2 then
-            tiro.x = nave.x + nave.largura * 2.5 - 2.5  -- Ajuste para sair da ponta da nave 2
+            tiro.x = nave.x + nave.largura * 2.5 - 2.5  -- Tiro centro 2
         elseif naveSelecionada == 3 then
-            tiro.x = nave.x + nave.largura * 2.5 - 2.5
-        else
-            tiro.x = nave.x + nave.largura / 2 - 2.5  -- Para a nave 3 ou outras, sairá centralizado
+            tiro.x = nave.x + nave.largura * 2.5 - 2.5 -- Tiro centro 3
         end
         
         tiro.y = nave.y - 10  -- Ajuste vertical para sair do topo da nave
