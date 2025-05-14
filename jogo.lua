@@ -6,6 +6,12 @@ local tiros = {}
 local meteoroImagem
 local meteoroGigante
 
+local imagensNaves = {
+    love.graphics.newImage("nave1.png"),
+    love.graphics.newImage("nave2.png"),
+    love.graphics.newImage("nave3.png")
+}
+
 -- Dimensões da tela
 local larguraTela = 1280
 local alturaTela = 720
@@ -35,18 +41,11 @@ local tempoTransicao = 0
 local duracaoTransicao = 3
 
 function jogo.load()
-    nave.image = love.graphics.newImage("nave1.png")
     meteoroImagem = love.graphics.newImage("meteoro.png")
-    meteoroGigante = love.graphics.newImage("meteoro.png") -- usa a mesma imagem, mas escalada
-
-    nave.x = larguraTela / 2
-    nave.y = alturaTela * 0.85
-    nave.largura = nave.image:getWidth() * 0.2
-    nave.altura = nave.image:getHeight() * 0.5
-    nave.velocidade = velocidadeNave
+    meteoroGigante = love.graphics.newImage("meteoro.png")
 end
 
-function jogo.reiniciar()
+function jogo.reiniciar(naveSelecionada)
     meteoros = {}
     tiros = {}
     meteoroFinal = nil
@@ -60,7 +59,13 @@ function jogo.reiniciar()
     tempoUltimoMeteoro = 0
     emTransicaoDeFase = false
     tempoTransicao = 0
+
+    nave.image = imagensNaves[naveSelecionada or 1]
     nave.x = larguraTela / 2
+    nave.y = alturaTela * 0.85
+    nave.largura = nave.image:getWidth() * 0.2
+    nave.altura = nave.image:getHeight() * 0.5
+    nave.velocidade = velocidadeNave
 end
 
 function jogo.update(dt)
@@ -111,7 +116,6 @@ function jogo.update(dt)
         local m = meteoros[i]
         m.y = m.y + m.velocidade * dt
 
-        -- Colisão com tiro
         for j = #tiros, 1, -1 do
             if checarColisao(m, tiros[j], 0.3) then
                 table.remove(meteoros, i)
@@ -122,7 +126,6 @@ function jogo.update(dt)
             end
         end
 
-        -- Passou da tela
         if m and m.y > alturaTela then
             table.remove(meteoros, i)
             vidas = vidas - 1
@@ -132,14 +135,12 @@ function jogo.update(dt)
         end
     end
 
-    -- Lógica de fases
     if fase == 1 and destruicoesFase >= 20 then
         iniciarTransicao(2, 10, 150)
     elseif fase == 2 and destruicoesFase >= 10 then
         iniciarTransicao(3)
     end
 
-    -- Fase final
     if fase == 3 and meteoroFinal then
         meteoroFinal.y = meteoroFinal.y + 40 * dt
         for i = #tiros, 1, -1 do
@@ -154,7 +155,6 @@ function jogo.update(dt)
         return
     end
 
-    -- Criar meteoros
     tempoUltimoMeteoro = tempoUltimoMeteoro + dt
     if tempoUltimoMeteoro > 1 and fase < 3 then
         criarMeteoro()
@@ -214,7 +214,7 @@ function jogo.keypressed(key)
         estado = "menu"
         jogoPausado = false
     elseif key == "r" and gameOver then
-        jogo.reiniciar()
+        jogo.reiniciar(naveSelecionada)
     elseif key == "backspace" then
         estado = "menu"
     end
