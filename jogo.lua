@@ -6,13 +6,12 @@ local tiros = {}
 local meteoroImagem
 local meteoroGigante
 local imagemBala
+local imagemFase2
 
--- Dimensões da tela
 local larguraTela = 1350
 local alturaTela = 720
 love.window.setMode(larguraTela, alturaTela)
 
--- Configurações
 local velocidadeNave = 300
 local velocidadeTiro = 500
 local velocidadeMeteoro = 100
@@ -20,7 +19,6 @@ local tempoUltimoMeteoro = 0
 
 local fontePontuacao = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 20)
 
--- Estado do jogo
 local score = 0
 local vidas = 5
 local jogoPausado = false
@@ -30,13 +28,14 @@ local destruicoesFase = 0
 local alvoFase = 20
 local meteoroFinal = nil
 
--- Transição de fase
 local emTransicaoDeFase = false
 local tempoTransicao = 0
 local duracaoTransicao = 3
 local alphaTransicao = 0
+local transicaoTextoY = alturaTela
+local textoTransicao = ""
+local mostrarImagemFase2 = false
 
--- Seleção de naves
 local navesDisponiveis = {
     love.graphics.newImage("nave1.png"),
     love.graphics.newImage("nave2.png"),
@@ -49,6 +48,7 @@ function jogo.load()
     meteoroImagem = love.graphics.newImage("meteoro.png")
     meteoroGigante = love.graphics.newImage("meteoro.png")
     imagemBala = love.graphics.newImage("bala.png")
+    imagemFase2 = love.graphics.newImage("fase2.png")
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
@@ -72,6 +72,9 @@ function jogo.reiniciar()
     emTransicaoDeFase = false
     tempoTransicao = 0
     alphaTransicao = 0
+    transicaoTextoY = alturaTela
+    textoTransicao = ""
+    mostrarImagemFase2 = false
     nave.x = larguraTela / 2
 
     nave.image = navesDisponiveis[naveSelecionada]
@@ -84,16 +87,15 @@ function jogo.update(dt)
 
     if emTransicaoDeFase then
         tempoTransicao = tempoTransicao + dt
-        if tempoTransicao < duracaoTransicao / 2 then
-            alphaTransicao = tempoTransicao / (duracaoTransicao / 2)
-        else
-            alphaTransicao = 1 - ((tempoTransicao - duracaoTransicao / 2) / (duracaoTransicao / 2))
-        end
+        alphaTransicao = math.sin((tempoTransicao / duracaoTransicao) * math.pi)
+        transicaoTextoY = alturaTela / 2 + math.sin(tempoTransicao * 3) * 10
 
         if tempoTransicao >= duracaoTransicao then
             emTransicaoDeFase = false
             tempoTransicao = 0
             alphaTransicao = 0
+            transicaoTextoY = alturaTela
+            mostrarImagemFase2 = false
 
             if fase == 3 then
                 meteoroFinal = {
@@ -178,6 +180,16 @@ function jogo.update(dt)
 end
 
 function jogo.draw()
+    -- Desenhar fundo fase 2
+    if fase == 2 then
+        love.graphics.draw(imagemFase2, 0, 0, 0,
+            larguraTela / imagemFase2:getWidth(),
+            alturaTela / imagemFase2:getHeight()
+        )
+    else
+        love.graphics.clear(0, 0, 0)
+    end
+
     love.graphics.draw(nave.image, nave.x, nave.y, 0, 0.2, 0.2)
 
     for _, meteoro in ipairs(meteoros) do
@@ -209,9 +221,10 @@ function jogo.draw()
         local alpha = alphaTransicao * 255
         love.graphics.setColor(0, 0, 0, alpha)
         love.graphics.rectangle("fill", 0, 0, larguraTela, alturaTela)
+
         love.graphics.setColor(255, 255, 255, alpha)
-        love.graphics.setFont(love.graphics.newFont(32))
-        love.graphics.printf("Fase " .. fase .. " começando...", 0, alturaTela / 2 - 16, larguraTela, "center")
+        love.graphics.setFont(love.graphics.newFont(40))
+        love.graphics.printf(textoTransicao, 0, transicaoTextoY, larguraTela, "center")
         love.graphics.setColor(255, 255, 255, 255)
     end
 
@@ -290,6 +303,9 @@ function iniciarTransicao(novaFase, novoAlvo, novaVelocidade)
     tiros = {}
     tempoTransicao = 0
     alphaTransicao = 0
+    transicaoTextoY = alturaTela
+    textoTransicao = "Fase " .. fase .. " começando..."
+    mostrarImagemFase2 = (fase == 2)
 end
 
 return jogo
