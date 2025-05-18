@@ -34,6 +34,7 @@ local meteoroFinal = nil
 local emTransicaoDeFase = false
 local tempoTransicao = 0
 local duracaoTransicao = 3
+local alphaTransicao = 0
 
 -- Seleção de naves
 local navesDisponiveis = {
@@ -70,6 +71,7 @@ function jogo.reiniciar()
     tempoUltimoMeteoro = 0
     emTransicaoDeFase = false
     tempoTransicao = 0
+    alphaTransicao = 0
     nave.x = larguraTela / 2
 
     nave.image = navesDisponiveis[naveSelecionada]
@@ -82,9 +84,17 @@ function jogo.update(dt)
 
     if emTransicaoDeFase then
         tempoTransicao = tempoTransicao + dt
+        if tempoTransicao < duracaoTransicao / 2 then
+            alphaTransicao = tempoTransicao / (duracaoTransicao / 2)
+        else
+            alphaTransicao = 1 - ((tempoTransicao - duracaoTransicao / 2) / (duracaoTransicao / 2))
+        end
+
         if tempoTransicao >= duracaoTransicao then
             emTransicaoDeFase = false
             tempoTransicao = 0
+            alphaTransicao = 0
+
             if fase == 3 then
                 meteoroFinal = {
                     x = larguraTela / 2 - 100,
@@ -98,7 +108,6 @@ function jogo.update(dt)
         return
     end
 
-    -- Movimentação da nave
     if love.keyboard.isDown("left") or love.keyboard.isDown("a") then
         nave.x = nave.x - nave.velocidade * dt
     elseif love.keyboard.isDown("right") or love.keyboard.isDown("d") then
@@ -111,7 +120,6 @@ function jogo.update(dt)
         nave.x = larguraTela - nave.largura
     end
 
-    -- Tiros
     for i = #tiros, 1, -1 do
         tiros[i].y = tiros[i].y - velocidadeTiro * dt
         if tiros[i].y < 0 then
@@ -119,7 +127,6 @@ function jogo.update(dt)
         end
     end
 
-    -- Meteoros
     for i = #meteoros, 1, -1 do
         local m = meteoros[i]
         m.y = m.y + m.velocidade * dt
@@ -199,7 +206,13 @@ function jogo.draw()
     end
 
     if emTransicaoDeFase then
-        love.graphics.printf("Fase " .. fase .. " começando em " .. math.ceil(duracaoTransicao - tempoTransicao), 0, alturaTela / 2, larguraTela, "center")
+        local alpha = alphaTransicao * 255
+        love.graphics.setColor(0, 0, 0, alpha)
+        love.graphics.rectangle("fill", 0, 0, larguraTela, alturaTela)
+        love.graphics.setColor(255, 255, 255, alpha)
+        love.graphics.setFont(love.graphics.newFont(32))
+        love.graphics.printf("Fase " .. fase .. " começando...", 0, alturaTela / 2 - 16, larguraTela, "center")
+        love.graphics.setColor(255, 255, 255, 255)
     end
 
     if gameOver then
@@ -224,14 +237,7 @@ function jogo.keypressed(key)
             y = nave.y - alturaBala
         }
 
-        if naveSelecionada == 1 then
-            tiro.x = nave.x + nave.largura / 2 - larguraBala / 2
-        elseif naveSelecionada == 2 then
-            tiro.x = nave.x + nave.largura / 2 - larguraBala / 2
-        elseif naveSelecionada == 3 then
-            tiro.x = nave.x + (nave.largura / 2) - larguraBala / 2
-        end
-
+        tiro.x = nave.x + nave.largura / 2 - larguraBala / 2
         table.insert(tiros, tiro)
     elseif key == "p" then
         jogoPausado = not jogoPausado
@@ -282,6 +288,8 @@ function iniciarTransicao(novaFase, novoAlvo, novaVelocidade)
     destruicoesFase = 0
     meteoros = {}
     tiros = {}
+    tempoTransicao = 0
+    alphaTransicao = 0
 end
 
 return jogo
