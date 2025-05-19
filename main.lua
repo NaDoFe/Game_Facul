@@ -10,18 +10,23 @@ love.window.setMode(larguraTela, alturaTela, {fullscreen = true})
 -- Estado do jogo
 estado = "menu"
 opcaoSelecionada = 1
-naveSelecionada = 1 -- Adiciona a nave selecionada
+naveSelecionada = 1
 
 local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 20)
 
--- Imagem do menu
+-- Imagens
 local imagemMenu
+local imagensNaves = {
+    love.graphics.newImage("nave1.png"),
+    love.graphics.newImage("nave2.png"),
+    love.graphics.newImage("nave3.png")
+}
 
 function love.load()
     love.graphics.setFont(fonte)
     imagemMenu = love.graphics.newImage("menu.png")
     love.window.setTitle("METEOR SMASH")
-    jogo.load() -- carregar os recursos do jogo
+    jogo.load()
 end
 
 function love.update(dt)
@@ -46,12 +51,10 @@ function desenharMenu()
     love.graphics.setFont(fonte)
     love.graphics.setColor(255, 255, 255)
 
-    -- Escala proporcional para preencher a tela sem distorcer
+    -- Imagem de fundo
     local imgLarg = imagemMenu:getWidth()
     local imgAlt = imagemMenu:getHeight()
     local escala = math.min(larguraTela / imgLarg, alturaTela / imgAlt)
-
-    -- Centralizar a imagem
     local offsetX = (larguraTela - imgLarg * escala) / 2
     local offsetY = (alturaTela - imgAlt * escala) / 2
     love.graphics.draw(imagemMenu, offsetX, offsetY, 0, escala, escala)
@@ -61,22 +64,27 @@ function desenharMenu()
     love.graphics.printf("METEOR SMASH", 0, 100, larguraTela, "center")
 
     -- Opções do menu
-    local opcoes = {
-        "Jogar (Nave " .. naveSelecionada .. ")",
-        "Controles",
-        "Créditos",
-        "Sair"
-    }
-
+    local opcoes = {"Jogar", "Controles", "Créditos", "Sair"}
     for i = 1, #opcoes do
         if i == opcaoSelecionada then
             love.graphics.setColor(100, 100, 0)
-            love.graphics.rectangle("line", 540, 192 + (i * 40), 300, 30)
+            love.graphics.rectangle("line", 540, 192 + (i * 40), 200, 30)
         else
             love.graphics.setColor(255, 255, 255)
         end
         love.graphics.printf(opcoes[i], 0, 200 + (i * 40), larguraTela, "center")
     end
+
+    -- Instruções para seleção de nave
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.printf("Use ← → para escolher a nave", 0, 450, larguraTela, "center")
+
+    -- Desenhar imagem da nave selecionada
+    local img = imagensNaves[naveSelecionada]
+    local escalaNave = 0.5
+    local imgX = larguraTela / 2 - (img:getWidth() * escalaNave) / 2
+    local imgY = 500
+    love.graphics.draw(img, imgX, imgY, 0, escalaNave, escalaNave)
 end
 
 function love.keypressed(key)
@@ -85,20 +93,14 @@ function love.keypressed(key)
             opcaoSelecionada = opcaoSelecionada % 4 + 1
         elseif key == "up" then
             opcaoSelecionada = (opcaoSelecionada - 2) % 4 + 1
-        elseif key == "left" or key == "right" then
-            if opcaoSelecionada == 1 then
-                -- Trocar de nave
-                if key == "left" then
-                    naveSelecionada = (naveSelecionada - 2) % 3 + 1
-                elseif key == "right" then
-                    naveSelecionada = naveSelecionada % 3 + 1
-                end
-            end
+        elseif key == "left" then
+            naveSelecionada = (naveSelecionada - 2) % 3 + 1
+        elseif key == "right" then
+            naveSelecionada = naveSelecionada % 3 + 1
         elseif key == "return" then
             if opcaoSelecionada == 1 then
-                -- Passar a nave selecionada para o módulo do jogo
-                jogo.naveSelecionada = naveSelecionada
                 estado = "jogo"
+                jogo.naveSelecionada = naveSelecionada -- passa a nave selecionada
                 jogo.reiniciar()
             elseif opcaoSelecionada == 2 then
                 estado = "controles"
