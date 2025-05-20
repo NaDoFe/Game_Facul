@@ -17,14 +17,14 @@ local fonte = love.graphics.newFont("fonts/PixelifySans-VariableFont_wght.ttf", 
 -- Imagens
 local imagemMenu
 local imagensNaves = {
-    love.graphics.newImage("nave1.png"),
-    love.graphics.newImage("nave2.png"),
-    love.graphics.newImage("nave3.png")
+    love.graphics.newImage("assets/nave1.png"),
+    love.graphics.newImage("assets/nave2.png"),
+    love.graphics.newImage("assets/nave3.png")
 }
 
 function love.load()
     love.graphics.setFont(fonte)
-    imagemMenu = love.graphics.newImage("menu.png")
+    imagemMenu = love.graphics.newImage("assets/menu.png")
     love.window.setTitle("METEOR SMASH")
     jogo.load()
 end

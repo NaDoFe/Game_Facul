@@ -6,6 +6,7 @@ local tiros = {}
 local meteoroImagem
 local meteoroGigante
 local imagemBala
+local imagemFase1
 local imagemFase2
 
 local larguraTela = 1350
@@ -37,18 +38,19 @@ local textoTransicao = ""
 local mostrarImagemFase2 = false
 
 local navesDisponiveis = {
-    love.graphics.newImage("nave1.png"),
-    love.graphics.newImage("nave2.png"),
-    love.graphics.newImage("nave3.png")
+    love.graphics.newImage("assets/nave1.png"),
+    love.graphics.newImage("assets/nave2.png"),
+    love.graphics.newImage("assets/nave3.png")
 }
 local naveSelecionada = 1
 
 function jogo.load()
     nave.image = navesDisponiveis[naveSelecionada]
-    meteoroImagem = love.graphics.newImage("meteoro.png")
-    meteoroGigante = love.graphics.newImage("meteoro.png")
-    imagemBala = love.graphics.newImage("bala.png")
-    imagemFase2 = love.graphics.newImage("fase2.png")
+    meteoroImagem = love.graphics.newImage("assets/meteoro.png")
+    meteoroGigante = love.graphics.newImage("assets/meteoro.png")
+    imagemBala = love.graphics.newImage("assets/bala.png")
+    imagemFase1 = love.graphics.newImage("assets/fase1.png")
+    imagemFase2 = love.graphics.newImage("assets/fase2.png")
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
@@ -180,8 +182,14 @@ function jogo.update(dt)
 end
 
 function jogo.draw()
-    -- Desenhar fundo fase 2
-    if fase == 2 then
+    -- Desenhar fundo fase 1
+    if fase == 1 then
+        love.graphics.draw(imagemFase1, 0, 0, 0,
+            larguraTela / imagemFase1:getWidth(),
+            alturaTela / imagemFase1:getHeight()
+        )
+            -- Desenhar fundo fase 2   
+    elseif fase == 2 then
         love.graphics.draw(imagemFase2, 0, 0, 0,
             larguraTela / imagemFase2:getWidth(),
             alturaTela / imagemFase2:getHeight()
