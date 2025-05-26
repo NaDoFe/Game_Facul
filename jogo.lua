@@ -42,10 +42,19 @@ local navesDisponiveis = {
     love.graphics.newImage("assets/nave2.png"),
     love.graphics.newImage("assets/nave3.png")
 }
+
+local escalasNaves = {
+    {escalaX = 0.2, escalaY = 0.2},  -- nave1
+    {escalaX = 0.15, escalaY = 0.25}, -- nave2
+    {escalaX = 0.25, escalaY = 0.18}  -- nave3
+}
+
 local naveSelecionada = 1
 
 function jogo.load()
     nave.image = navesDisponiveis[naveSelecionada]
+    nave.escalaX = escalasNaves[naveSelecionada].escalaX
+    nave.escalaY = escalasNaves[naveSelecionada].escalaY
     meteoroImagem = love.graphics.newImage("assets/meteoro.png")
     meteoroGigante = love.graphics.newImage("assets/meteoro.png")
     imagemBala = love.graphics.newImage("assets/bala.png")
@@ -54,8 +63,8 @@ function jogo.load()
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
-    nave.largura = nave.image:getWidth() * 0.2
-    nave.altura = nave.image:getHeight() * 0.5
+    nave.largura = nave.image:getWidth() * nave.escalaX
+    nave.altura = nave.image:getHeight() * nave.escalaY
     nave.velocidade = velocidadeNave
 end
 
@@ -80,8 +89,10 @@ function jogo.reiniciar()
     nave.x = larguraTela / 2
 
     nave.image = navesDisponiveis[naveSelecionada]
-    nave.largura = nave.image:getWidth() * 0.2
-    nave.altura = nave.image:getHeight() * 0.5
+    nave.escalaX = escalasNaves[naveSelecionada].escalaX
+    nave.escalaY = escalasNaves[naveSelecionada].escalaY
+    nave.largura = nave.image:getWidth() * nave.escalaX
+    nave.altura = nave.image:getHeight() * nave.escalaY
 end
 
 function jogo.update(dt)
@@ -182,13 +193,11 @@ function jogo.update(dt)
 end
 
 function jogo.draw()
-    -- Desenhar fundo fase 1
     if fase == 1 then
         love.graphics.draw(imagemFase1, 0, 0, 0,
             larguraTela / imagemFase1:getWidth(),
             alturaTela / imagemFase1:getHeight()
         )
-            -- Desenhar fundo fase 2   
     elseif fase == 2 then
         love.graphics.draw(imagemFase2, 0, 0, 0,
             larguraTela / imagemFase2:getWidth(),
@@ -198,7 +207,7 @@ function jogo.draw()
         love.graphics.clear(0, 0, 0)
     end
 
-    love.graphics.draw(nave.image, nave.x, nave.y, 0, 0.2, 0.2)
+    love.graphics.draw(nave.image, nave.x, nave.y, 0, nave.escalaX, nave.escalaY)
 
     for _, meteoro in ipairs(meteoros) do
         love.graphics.draw(meteoroImagem, meteoro.x, meteoro.y, 0, 0.3, 0.3)
@@ -229,7 +238,6 @@ function jogo.draw()
         local alpha = alphaTransicao * 255
         love.graphics.setColor(0, 0, 0, alpha)
         love.graphics.rectangle("fill", 0, 0, larguraTela, alturaTela)
-
         love.graphics.setColor(255, 255, 255, alpha)
         love.graphics.setFont(love.graphics.newFont(40))
         love.graphics.printf(textoTransicao, 0, transicaoTextoY, larguraTela, "center")
@@ -257,7 +265,6 @@ function jogo.keypressed(key)
             altura = alturaBala,
             y = nave.y - alturaBala
         }
-
         tiro.x = nave.x + nave.largura / 2 - larguraBala / 2
         table.insert(tiros, tiro)
     elseif key == "p" then
@@ -269,15 +276,13 @@ function jogo.keypressed(key)
         jogo.reiniciar()
     elseif key == "backspace" then
         estado = "menu"
-    elseif key == "1" then
-        naveSelecionada = 1
+    elseif key == "1" or key == "2" or key == "3" then
+        naveSelecionada = tonumber(key)
         nave.image = navesDisponiveis[naveSelecionada]
-    elseif key == "2" then
-        naveSelecionada = 2
-        nave.image = navesDisponiveis[naveSelecionada]
-    elseif key == "3" then
-        naveSelecionada = 3
-        nave.image = navesDisponiveis[naveSelecionada]
+        nave.escalaX = escalasNaves[naveSelecionada].escalaX
+        nave.escalaY = escalasNaves[naveSelecionada].escalaY
+        nave.largura = nave.image:getWidth() * nave.escalaX
+        nave.altura = nave.image:getHeight() * nave.escalaY
     end
 end
 
