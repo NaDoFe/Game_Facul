@@ -35,9 +35,25 @@ local tempoTransicao = 0
 local duracaoTransicao = 3
 
 function jogo.load()
+<<<<<<< Updated upstream
     nave.image = love.graphics.newImage("nave1.png")
     meteoroImagem = love.graphics.newImage("meteoro.png")
     meteoroGigante = love.graphics.newImage("meteoro.png") -- usa a mesma imagem, mas escalada
+=======
+    nave.image = navesDisponiveis[naveSelecionada]
+    meteoroImagem = love.graphics.newImage("assets/meteoro.png")
+    meteoroGigante = love.graphics.newImage("assets/meteoro.png")
+    imagemBala = love.graphics.newImage("assets/bala.png")
+    imagemFase1 = love.graphics.newImage("assets/fase1.png")
+    imagemFase2 = love.graphics.newImage("assets/fase2.png")
+    sonstiro = love.audio.newSource("sons/tiro.wav", "nil")
+    sonstiro = love.audio.newSource("sons/menu.wav" , "static")
+    sonstiro = love.audio.newSource("sons/derrota.wav" , "nil")
+    sonstiro = love.audio.newSource("sons/vitoria.wav" , "nil")
+    sonstiro = love.audio.newSource("sons/mapa1.wav" , "static")
+    sonstiro = love.audio.newSource("sons/mapa2.wav" , "static")
+    sonstiro = love.audio.newSource("sons/mapa3.wav" , "static")
+>>>>>>> Stashed changes
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
