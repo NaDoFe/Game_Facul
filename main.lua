@@ -6,7 +6,7 @@ jogo = require("jogo")
 local estado = "menu"
 local larguraTela = 1350
 local alturaTela = 720
-love.window.setMode(larguraTela, alturaTela)
+love.window.setMode(larguraTela, alturaTela,{fullscreen = true})
 
 local jogo = require "jogo"
 
