@@ -8,6 +8,7 @@ local meteoroGigante
 local imagemBala
 local imagemFase1
 local imagemFase2
+local audio_sonstiro
 
 local larguraTela = 1350
 local alturaTela = 720
@@ -60,6 +61,14 @@ function jogo.load()
     imagemBala = love.graphics.newImage("assets/bala.png")
     imagemFase1 = love.graphics.newImage("assets/fase1.png")
     imagemFase2 = love.graphics.newImage("assets/fase2.png")
+    sonstiro = love.audio.newSource("sons/tiro.wav" , "nill")
+    sonstiro = love.audio.newSource("sons/menu.wav" , "static")
+    sonstiro = love.audio.newSource("sons/derrota.wav" , "nill")
+    sonstiro = love.audio.newSource("sons/vitoria.wav" , "nill")
+    sonstiro = love.audio.newSource("sons/mapa1.wav" , "static")
+    sonstiro = love.audio.newSource("sons/mapa2.wav" , "static")
+    sonstiro = love.audio.newSource("sons/mapa3.wav" , "static")
+    sonstiro = love.audio.newSource("sons/explosao.wav" , "nill")
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
