@@ -17,7 +17,11 @@ local velocidadeTiro = 500
 local velocidadeMeteoro = 100
 local tempoUltimoMeteoro = 0
 
+<<<<<<< Updated upstream
 local fontePontuacao = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 10)
+=======
+local fontePontuacao = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
+>>>>>>> Stashed changes
 
 -- Estado do jogo
 local score = 0
@@ -33,16 +37,39 @@ local meteoroFinal = nil
 local emTransicaoDeFase = false
 local tempoTransicao = 0
 local duracaoTransicao = 3
+<<<<<<< Updated upstream
 
 function jogo.load()
     nave.image = love.graphics.newImage("nave1.png")
     meteoroImagem = love.graphics.newImage("meteoro.png")
     meteoroGigante = love.graphics.newImage("meteoro.png") -- usa a mesma imagem, mas escalada
+=======
+local alphaTransicao = 0
+local transicaoTextoY = alturaTela
+local textoTransicao = ""
+local mostrarImagemFase2 = false
+
+local navesDisponiveis = {
+    love.graphics.newImage("assets/nave/nave1.png"),
+    love.graphics.newImage("assets/nave/nave2.png"),
+    love.graphics.newImage("assets/nave/nave3.png")
+}
+local naveSelecionada = 1
+
+function jogo.load()
+    nave.image = navesDisponiveis[naveSelecionada]
+    meteoroImagem = love.graphics.newImage("assets/meteoro/meteoro.png")
+    meteoroGigante = love.graphics.newImage("assets/meteoro/meteoro2.png")
+    imagemBala = love.graphics.newImage("assets/nave/bala.png")
+    imagemFase1 = love.graphics.newImage("assets/mapa/mapa1.png")
+    imagemFase2 = love.graphics.newImage("assets/mapa/mapa1.png")
+    imagemFase3 = love.graphics.newImage("assets/mapa/mapa1.png")
+>>>>>>> Stashed changes
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
-    nave.largura = nave.image:getWidth() * 0.2
-    nave.altura = nave.image:getHeight() * 0.5
+    nave.largura = nave.image:getWidth()
+    nave.altura = nave.image:getHeight()
     nave.velocidade = velocidadeNave
 end
 
@@ -61,6 +88,13 @@ function jogo.reiniciar()
     emTransicaoDeFase = false
     tempoTransicao = 0
     nave.x = larguraTela / 2
+<<<<<<< Updated upstream
+=======
+
+    nave.image = navesDisponiveis[naveSelecionada]
+    nave.largura = nave.image:getWidth() * 0.2
+    nave.altura = nave.image:getHeight() * 2
+>>>>>>> Stashed changes
 end
 
 function jogo.update(dt)
@@ -163,6 +197,28 @@ function jogo.update(dt)
 end
 
 function jogo.draw()
+<<<<<<< Updated upstream
+=======
+    -- Desenhar fundo fase 1
+    if fase == 1 then
+        love.graphics.draw(imagemFase1, 0, 0, 0,
+            larguraTela / imagemFase1:getWidth(),
+            alturaTela / imagemFase1:getHeight()
+        )
+            -- Desenhar fundo fase 2   
+    elseif fase == 2 then
+        love.graphics.draw(imagemFase2, 0, 0, 0,
+            larguraTela / imagemFase2:getWidth(),
+            alturaTela / imagemFase2:getHeight()
+        )
+    else
+        love.graphics.draw(imagemFase3, 0, 0, 0,
+            larguraTela / imagemFase2:getWidth(),
+            alturaTela / imagemFase2:getHeight()
+        )
+    end
+
+>>>>>>> Stashed changes
     love.graphics.draw(nave.image, nave.x, nave.y, 0, 0.2, 0.2)
 
     for _, meteoro in ipairs(meteoros) do
@@ -185,7 +241,12 @@ function jogo.draw()
     love.graphics.setFont(fontePontuacao)
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
     love.graphics.print("Fase: " .. fase, 10, 40)
+<<<<<<< Updated upstream
     love.graphics.print("Vidas: " .. vidas, 100, 50)
+=======
+    love.graphics.print("Vidas: " .. vidas, 10, 100)
+    love.graphics.print("Nave: " .. naveSelecionada, 10, 70)
+>>>>>>> Stashed changes
 
     if jogoPausado then
         love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\n'M' para menu", 0, alturaTela / 2, larguraTela, "center")
