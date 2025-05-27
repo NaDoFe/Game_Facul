@@ -11,14 +11,7 @@ love.window.setMode(larguraTela, alturaTela, {fullscreen = true})
 estado = "menu"
 opcaoSelecionada = 1
 
-<<<<<<< Updated upstream
 local fonte = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 10)
-=======
-local fontePontuacao = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
-love.graphics.setFont(fontePontuacao)
--- Imagens
-local imagemMenu = love.graphics.newImage("assets/menu.png")
->>>>>>> Stashed changes
 
 -- Imagem do menu
 local imagemMenu
