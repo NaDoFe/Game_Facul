@@ -8,6 +8,7 @@ local meteoroGigante
 local imagemBala
 local imagemFase1
 local imagemFase2
+local imagemFase3
 
 local larguraTela = 1350
 local alturaTela = 720
@@ -17,7 +18,6 @@ local velocidadeNave = 300
 local velocidadeTiro = 500
 local velocidadeMeteoro = 100
 local tempoUltimoMeteoro = 0
-
 
 local fontePontuacao = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
 love.graphics.setFont(fontePontuacao)
@@ -46,20 +46,31 @@ local navesDisponiveis = {
 }
 local naveSelecionada = 1
 
+-- Sons
+local somTiro
+local somExplosao
+local somDerrota
+local somVitoria
+
 function jogo.load()
     nave.image = navesDisponiveis[naveSelecionada]
     meteoroImagem = love.graphics.newImage("assets/meteoro/meteoro.png")
     meteoroGigante = love.graphics.newImage("assets/meteoro/meteoro2.png")
     imagemBala = love.graphics.newImage("assets/nave/bala.png")
     imagemFase1 = love.graphics.newImage("assets/mapa/mapa1.png")
-    imagemFase2 = love.graphics.newImage("assets/mapa/mapa1.png")
-    imagemFase3 = love.graphics.newImage("assets/mapa/mapa1.png")
+    imagemFase2 = love.graphics.newImage("assets/mapa/mapa2.png")
+    imagemFase3 = love.graphics.newImage("assets/mapa/mapa3.png")
 
     nave.x = larguraTela / 2
     nave.y = alturaTela * 0.85
     nave.largura = nave.image:getWidth()
     nave.altura = nave.image:getHeight()
     nave.velocidade = velocidadeNave
+
+    somTiro = love.audio.newSource("assets/sons/tiro.wav", "static")
+    somExplosao = love.audio.newSource("assets/sons/explosao.wav", "static")
+    somDerrota = love.audio.newSource("assets/sons/derrota.wav", "static")
+    somVitoria = love.audio.newSource("assets/sons/vitoria.wav", "static")
 end
 
 function jogo.reiniciar()
@@ -81,7 +92,6 @@ function jogo.reiniciar()
     textoTransicao = ""
     mostrarImagemFase2 = false
     nave.x = larguraTela / 2
-
     nave.image = navesDisponiveis[naveSelecionada]
     nave.largura = nave.image:getWidth() * 0.2
     nave.altura = nave.image:getHeight() * 2
@@ -144,6 +154,7 @@ function jogo.update(dt)
                 table.remove(tiros, j)
                 destruicoesFase = destruicoesFase + 1
                 score = score + 1
+                somExplosao:clone():play()
                 break
             end
         end
@@ -151,8 +162,9 @@ function jogo.update(dt)
         if m and m.y > alturaTela then
             table.remove(meteoros, i)
             vidas = vidas - 1
-            if vidas <= 0 then
+            if vidas <= 0 and not gameOver then
                 gameOver = true
+                somDerrota:play()
             end
         end
     end
@@ -169,8 +181,10 @@ function jogo.update(dt)
             if checarColisao(meteoroFinal, tiros[i], 0.6) then
                 meteoroFinal.vida = meteoroFinal.vida - 1
                 table.remove(tiros, i)
-                if meteoroFinal.vida <= 0 then
+                somExplosao:clone():play()
+                if meteoroFinal.vida <= 0 and not gameOver then
                     gameOver = true
+                    somVitoria:play()
                 end
             end
         end
@@ -185,23 +199,12 @@ function jogo.update(dt)
 end
 
 function jogo.draw()
-    -- Desenhar fundo fase 1
     if fase == 1 then
-        love.graphics.draw(imagemFase1, 0, 0, 0,
-            larguraTela / imagemFase1:getWidth(),
-            alturaTela / imagemFase1:getHeight()
-        )
-            -- Desenhar fundo fase 2   
+        love.graphics.draw(imagemFase1, 0, 0, 0, larguraTela / imagemFase1:getWidth(), alturaTela / imagemFase1:getHeight())
     elseif fase == 2 then
-        love.graphics.draw(imagemFase2, 0, 0, 0,
-            larguraTela / imagemFase2:getWidth(),
-            alturaTela / imagemFase2:getHeight()
-        )
+        love.graphics.draw(imagemFase2, 0, 0, 0, larguraTela / imagemFase2:getWidth(), alturaTela / imagemFase2:getHeight())
     else
-        love.graphics.draw(imagemFase3, 0, 0, 0,
-            larguraTela / imagemFase2:getWidth(),
-            alturaTela / imagemFase2:getHeight()
-        )
+        love.graphics.draw(imagemFase3, 0, 0, 0, larguraTela / imagemFase3:getWidth(), alturaTela / imagemFase3:getHeight())
     end
 
     love.graphics.draw(nave.image, nave.x, nave.y, 0, 0.2, 0.2)
@@ -221,11 +224,10 @@ function jogo.draw()
         love.graphics.draw(tiro.imagem, tiro.x, tiro.y, 0, 0.3, 0.3)
     end
 
-    love.graphics.setFont(fontePontuacao)
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
     love.graphics.print("Fase: " .. fase, 10, 40)
-    love.graphics.print("Vidas: " .. vidas, 10, 100)
     love.graphics.print("Nave: " .. naveSelecionada, 10, 70)
+    love.graphics.print("Vidas: " .. vidas, 10, 100)
 
     if jogoPausado then
         love.graphics.printf("JOGO PAUSADO\nPressione 'P' para continuar\n'M' para menu", 0, alturaTela / 2, larguraTela, "center")
@@ -235,7 +237,6 @@ function jogo.draw()
         local alpha = alphaTransicao * 255
         love.graphics.setColor(0, 0, 0, alpha)
         love.graphics.rectangle("fill", 0, 0, larguraTela, alturaTela)
-
         love.graphics.setColor(255, 255, 255, alpha)
         love.graphics.setFont(love.graphics.newFont(40))
         love.graphics.printf(textoTransicao, 0, transicaoTextoY, larguraTela, "center")
@@ -266,6 +267,7 @@ function jogo.keypressed(key)
 
         tiro.x = nave.x + nave.largura / 2 - larguraBala / 2
         table.insert(tiros, tiro)
+        somTiro:clone():play()
     elseif key == "p" then
         jogoPausado = not jogoPausado
     elseif key == "m" and jogoPausado then
@@ -322,6 +324,5 @@ function iniciarTransicao(novaFase, novoAlvo, novaVelocidade)
     textoTransicao = "Fase " .. fase .. " começando..."
     mostrarImagemFase2 = (fase == 2)
 end
-
 
 return jogo
