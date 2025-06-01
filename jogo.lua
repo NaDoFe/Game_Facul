@@ -51,6 +51,9 @@ local somTiro
 local somExplosao
 local somDerrota
 local somVitoria
+local musicaFase1
+local musicaFase2
+local musicaFase3
 
 function jogo.load()
     nave.image = navesDisponiveis[naveSelecionada]
@@ -71,9 +74,22 @@ function jogo.load()
     somExplosao = love.audio.newSource("assets/sons/explosao.wav", "static")
     somDerrota = love.audio.newSource("assets/sons/derrota.wav", "static")
     somVitoria = love.audio.newSource("assets/sons/vitoria.wav", "static")
+
+    musicaFase1 = love.audio.newSource("assets/sons/musica_fase1.wav", "stream")
+    musicaFase1:setLooping(true)
+
+    musicaFase2 = love.audio.newSource("assets/sons/musica_fase2.wav", "stream")
+    musicaFase2:setLooping(true)
+
+    musicaFase3 = love.audio.newSource("assets/sons/musica_fase3.wav", "stream")
+    musicaFase3:setLooping(true)
 end
 
 function jogo.reiniciar()
+    if musicaFase1 and musicaFase1:isPlaying() then musicaFase1:stop() end
+    if musicaFase2 and musicaFase2:isPlaying() then musicaFase2:stop() end
+    if musicaFase3 and musicaFase3:isPlaying() then musicaFase3:stop() end
+
     meteoros = {}
     tiros = {}
     meteoroFinal = nil
@@ -99,6 +115,21 @@ end
 
 function jogo.update(dt)
     if gameOver or jogoPausado then return end
+
+    -- Controle da música de fundo
+    if fase == 1 then
+        if not musicaFase1:isPlaying() then musicaFase1:play() end
+        if musicaFase2:isPlaying() then musicaFase2:stop() end
+        if musicaFase3:isPlaying() then musicaFase3:stop() end
+    elseif fase == 2 then
+        if musicaFase1:isPlaying() then musicaFase1:stop() end
+        if not musicaFase2:isPlaying() then musicaFase2:play() end
+        if musicaFase3:isPlaying() then musicaFase3:stop() end
+    elseif fase == 3 then
+        if musicaFase1:isPlaying() then musicaFase1:stop() end
+        if musicaFase2:isPlaying() then musicaFase2:stop() end
+        if not musicaFase3:isPlaying() then musicaFase3:play() end
+    end
 
     if emTransicaoDeFase then
         tempoTransicao = tempoTransicao + dt
@@ -139,9 +170,7 @@ function jogo.update(dt)
 
     for i = #tiros, 1, -1 do
         tiros[i].y = tiros[i].y - velocidadeTiro * dt
-        if tiros[i].y < 0 then
-            table.remove(tiros, i)
-        end
+        if tiros[i].y < 0 then table.remove(tiros, i) end
     end
 
     for i = #meteoros, 1, -1 do
