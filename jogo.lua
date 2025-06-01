@@ -83,6 +83,12 @@ function jogo.load()
 
     musicaFase3 = love.audio.newSource("assets/sons/musica_fase3.wav", "stream")
     musicaFase3:setLooping(true)
+
+    musicaFase1:setVolume(0.3)
+    musicaFase2:setVolume(0.3)
+    musicaFase3:setVolume(0.3)
+    somExplosao:setVolume(0.3)
+    somTiro:setVolume(0.3)
 end
 
 function jogo.reiniciar()
