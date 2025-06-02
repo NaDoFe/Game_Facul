@@ -84,11 +84,11 @@ function jogo.load()
     musicaFase3 = love.audio.newSource("assets/sons/musica_fase3.wav", "stream")
     musicaFase3:setLooping(true)
 
-    musicaFase1:setVolume(0.3)
-    musicaFase2:setVolume(0.3)
-    musicaFase3:setVolume(0.3)
-    somExplosao:setVolume(0.3)
-    somTiro:setVolume(0.3)
+    musicaFase1:setVolume(0.2)
+    musicaFase2:setVolume(0.2)
+    musicaFase3:setVolume(0.2)
+    somExplosao:setVolume(0.2)
+    somTiro:setVolume(0.2)
 end
 
 function jogo.reiniciar()
@@ -112,6 +112,7 @@ function jogo.reiniciar()
     alphaTransicao = 0
     transicaoTextoY = alturaTela
     textoTransicao = ""
+    love.graphics.setFont(fontePontuacao)
     mostrarImagemFase2 = false
     nave.x = larguraTela / 2
     nave.image = navesDisponiveis[naveSelecionada]
@@ -249,16 +250,24 @@ function jogo.draw()
     end
 
     if meteoroFinal then
+        love.graphics.setFont(fontePontuacao)
         love.graphics.draw(meteoroGigante, meteoroFinal.x, meteoroFinal.y, 0, 0.6, 0.6)
+        
         love.graphics.setColor(255, 0, 0)
-        love.graphics.printf("Vida do Meteoro Final: " .. meteoroFinal.vida, 0, 30, larguraTela, "center")
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.printf("Vida do Meteoro: " .. meteoroFinal.vida, 0, 30, larguraTela, "center")
+        local barraLargura = meteoroFinal.largura
+        local barraAltura = 20
+        love.graphics.setColor(1, 0, 0, 0.8)
+        love.graphics.rectangle("fill", 550, 100, barraLargura * (meteoroFinal.vida / 50), barraAltura)
+        love.graphics.setColor(1, 1, 1, 1)
+
     end
 
     for _, tiro in ipairs(tiros) do
         love.graphics.draw(tiro.imagem, tiro.x, tiro.y, 0, 0.3, 0.3)
     end
 
+    love.graphics.setFont(fontePontuacao)
     love.graphics.print("Meteoros destruídos: " .. score, 10, 10)
     love.graphics.print("Fase: " .. fase, 10, 40)
     love.graphics.print("Nave: " .. naveSelecionada, 10, 70)
@@ -273,7 +282,7 @@ function jogo.draw()
         love.graphics.setColor(0, 0, 0, alpha)
         love.graphics.rectangle("fill", 0, 0, larguraTela, alturaTela)
         love.graphics.setColor(255, 255, 255, alpha)
-        love.graphics.setFont(love.graphics.newFont(40))
+        love.graphics.setFont(fontePontuacao)
         love.graphics.printf(textoTransicao, 0, transicaoTextoY, larguraTela, "center")
         love.graphics.setColor(255, 255, 255, 255)
     end
@@ -282,7 +291,7 @@ function jogo.draw()
         love.graphics.setColor(255, 0, 0)
         local msg = (fase == 3 and meteoroFinal and meteoroFinal.vida <= 0) and "VITÓRIA! TERRA SALVA!" or "TERRA DESTRUÍDA"
         love.graphics.printf(msg, 0, alturaTela / 2, larguraTela, "center")
-        love.graphics.printf("Pressione 'R' para reiniciar", 0, alturaTela / 2 + 40, larguraTela, "center")
+        love.graphics.printf("Pressione 'M' para voltar ao Menu", 0, alturaTela / 2 + 40, larguraTela, "center")
         love.graphics.setColor(255, 255, 255)
     end
 end
@@ -306,11 +315,14 @@ function jogo.keypressed(key)
     elseif key == "p" then
         jogoPausado = not jogoPausado
     elseif key == "m" and jogoPausado then
+        if musicaFase1:isPlaying() then musicaFase1:stop() end
+        if musicaFase2:isPlaying() then musicaFase2:stop() end
+        if musicaFase3:isPlaying() then musicaFase3:stop() end
         estado = "menu"
         jogoPausado = false
         gameOver = false
-    elseif key == "r" and gameOver then
-        jogo.reiniciar()
+    elseif key == "m" and gameOver then
+        estado = "menu"
     elseif key == "backspace" then
         estado = "menu"
     elseif key == "1" then
@@ -346,6 +358,7 @@ function checarColisao(obj1, obj2, escala)
 end
 
 function iniciarTransicao(novaFase, novoAlvo, novaVelocidade)
+    love.graphics.setFont(fontePontuacao)
     emTransicaoDeFase = true
     fase = novaFase
     alvoFase = novoAlvo or alvoFase

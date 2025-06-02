@@ -3,10 +3,13 @@ creditos = require("menus.creditos")
 controles = require("menus.controles")
 jogo = require("jogo")
 
+
 estado = "menu"
+local naveSelecionada = 1
+
 local larguraTela = 1350
 local alturaTela = 720
-love.window.setMode(larguraTela, alturaTela, {fullscreen = true})
+love.window.setMode(larguraTela, alturaTela)
 
 love.window.setTitle("METEOR SMASH")
 
