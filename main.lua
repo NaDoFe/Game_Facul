@@ -3,12 +3,18 @@ creditos = require("menus.creditos")
 controles = require("menus.controles")
 jogo = require("jogo")
 
-local estado = "menu"
+
+estado = "menu"
+local naveSelecionada = 1
+
 local larguraTela = 1350
 local alturaTela = 720
-love.window.setMode(larguraTela, alturaTela,{fullscreen = true})
+love.window.setMode(larguraTela, alturaTela)
 
-local jogo = require "jogo"
+love.window.setTitle("METEOR SMASH")
+
+local fontePontuacao = love.graphics.newFont("fonts/PressStart2P-Regular.ttf", 20)
+love.graphics.setFont(fontePontuacao)
 
 -- Imagens
 local imagemMenu = love.graphics.newImage("assets/menu.png")
@@ -73,11 +79,27 @@ end
 
 local botaoSelecionado = 1 -- Para navegação com teclado
 
+-- Som do menu
+local somMenu
+
 function love.load()
     jogo.load()
+    somMenu = love.audio.newSource("assets/sons/menu.wav", "stream")
+    somMenu:setLooping(true)
 end
 
 function love.update(dt)
+    -- Tocar/Parar som do menu conforme estado
+    if estado == "menu" then
+        if not somMenu:isPlaying() then
+            somMenu:play()
+        end
+    else
+        if somMenu:isPlaying() then
+            somMenu:stop()
+        end
+    end
+
     if estado == "jogo" then
         jogo.update(dt)
     end
